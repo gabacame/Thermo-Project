@@ -19,9 +19,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # Si tienes un archivo requirements.txt, descomenta la siguiente línea:
+        pip install -r requirements.txt
+        # Si no tienes un archivo requirements.txt, deja la siguiente línea:
         pip install pytest
-        # Aquí puedes agregar otras dependencias si las necesitas, por ejemplo:
-        # pip install -r requirements.txt
 
     - name: Run tests
-      run: pytest tests/
+      run: pytest Gases\ and\ liquids/tests/
+
