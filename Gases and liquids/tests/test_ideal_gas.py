@@ -1,6 +1,7 @@
 import unittest
 from ideal_gas import BoyleLaw
 from ideal_gas import CharlesLaw
+from ideal_gas import IdealGasLaw
 
 class TestBoyleLaw(unittest.TestCase):
 
@@ -115,6 +116,49 @@ class TestCharlesLaw(unittest.TestCase):
         # This test ensures the plotting function runs without errors
         try:
             self.charles.plot_isobar_from_k(22.4, range(1, 11), known='V')
+            passed = True
+        except Exception as e:
+            passed = False
+        self.assertTrue(passed)
+
+class TestIdealGasLaw(unittest.TestCase):
+
+    def setUp(self):
+        self.ideal_gas = IdealGasLaw()
+        self.ideal_gas.R_unit = "J/(mol*K)"
+        self.ideal_gas.R = self.ideal_gas.get_R(self.ideal_gas.R_unit)
+        self.ideal_gas.n = 1  # Asumiendo 1 mol de gas
+
+    def test_get_R(self):
+        self.assertEqual(self.ideal_gas.get_R("J/(mol*K)"), 8.314462618)
+
+    def test_calculate(self):
+        self.ideal_gas.P, self.ideal_gas.V, self.ideal_gas.T = 1, 22.4, 273.15  # 1 atm, 22.4 L, 0°C en K
+        self.assertAlmostEqual(self.ideal_gas.calculate('n'), 1)  # Calculando moles de gas
+
+        self.ideal_gas.n, self.ideal_gas.V, self.ideal_gas.T = 1, 22.4, 273.15
+        self.assertAlmostEqual(self.ideal_gas.calculate('P'), 1)  # Calculando presión en atm
+
+        self.ideal_gas.P, self.ideal_gas.n, self.ideal_gas.T = 1, 1, 273.15
+        self.assertAlmostEqual(self.ideal_gas.calculate('V'), 22.4)  # Calculando volumen en L
+
+        self.ideal_gas.P, self.ideal_gas.V, self.ideal_gas.n = 1, 22.4, 1
+        self.assertAlmostEqual(self.ideal_gas.calculate('T'), 273.15)  # Calculando temperatura en K
+
+    def test_plot_isobar(self):
+        # Esta prueba asegura que la función de trazar isobarra se ejecute sin errores
+        try:
+            self.ideal_gas.plot_isobar(1, 22.4, range(273, 373))  # Rango de temperatura de 0°C a 100°C
+            passed = True
+        except Exception as e:
+            passed = False
+        self.assertTrue(passed)
+
+    def test_plot_isotherm(self):
+        # Esta prueba asegura que la función de trazar isotermas se ejecute sin errores
+        self.ideal_gas.T = 273.15  # Temperatura en K
+        try:
+            self.ideal_gas.plot_isotherm(1, 22.4, range(1, 11))  # Rango de presión de 1 atm a 10 atm
             passed = True
         except Exception as e:
             passed = False

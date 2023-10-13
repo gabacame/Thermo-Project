@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import json
+import os
 
 class BoyleLaw:
     
@@ -110,8 +112,8 @@ class CharlesLaw:
                 raise ValueError("Exactly three values must be provided to calculate the fourth.")
         
     def plot_isobar(self, V1, T1, temperature_range):
-        volumes = [(V1 * T) / T1 for T in temperature_range]
-        plt.plot(temperature_range, volumes)
+        volumes = [(V1 * (T + 273.15)) / T1 for T in temperature_range]
+        plt.plot([T + 273.15 for T in temperature_range], volumes)  # Convertimos la temperatura a Kelvin también en el eje x
         plt.xlabel('Temperature (K)')
         plt.ylabel('Volume (L)')
         plt.title('Isobar of Charles')
@@ -135,3 +137,71 @@ class CharlesLaw:
         plt.grid(True)
         plt.show()
 
+class IdealGasLaw(BoyleLaw, CharlesLaw):
+    
+    def __init__(self, P=None, V=None, T=None, n=None, R_unit=None):
+        self.P = P
+        self.V = V
+        self.T = T
+        self.n = n
+        self.R_unit = R_unit  # La unidad de la constante R
+        self.R = self.get_R(R_unit)  # Obtener el valor de la constante R
+    
+    def get_R(self, unit):
+        # Obtener la ruta al directorio actual
+        current_dir = os.path.dirname(__file__)
+        
+        # Crear la ruta al archivo R.json
+        file_path = os.path.join(current_dir, 'R.json')
+        
+        # Leer el archivo JSON y obtener el valor de la constante R
+        with open(file_path, 'r') as file:
+            R_values = json.load(file)
+        return R_values.get(unit, None)  # Devuelve None si la unidad no está en el archivo
+    
+    def calculate(self, param_to_find):
+        # Asegurarse de que se proporcionen suficientes datos
+        if None in [self.P, self.V, self.T, self.n, self.R] and param_to_find not in ['P', 'V', 'T', 'n']:
+            raise ValueError("Insufficient data to perform calculation")
+        
+        if param_to_find == 'P':
+            self.P = (self.n * self.R * self.T) / self.V
+            return self.P
+        elif param_to_find == 'V':
+            self.V = (self.n * self.R * self.T) / self.P
+            return self.V
+        elif param_to_find == 'T':
+            self.T = (self.P * self.V) / (self.n * self.R)
+            return self.T
+        elif param_to_find == 'n':
+            self.n = (self.P * self.V) / (self.R * self.T)
+            return self.n
+        else:
+            raise ValueError("Invalid parameter to find. Choose from 'P', 'V', 'T', or 'n'")
+
+    def plot_isobar(self, P, V, T_range):
+        # Sobrescribir el método de CharlesLaw para incluir n y R
+        if self.n is None or self.R is None:
+            raise ValueError("Both n and R must be defined for plotting isobar")
+        volumes = [(self.n * self.R * T) / P for T in T_range]
+        plt.plot(T_range, volumes)
+        plt.xlabel('Temperature (K)')
+        plt.ylabel('Volume (L)')
+        plt.title('Isobar of Ideal Gas')
+        plt.grid(True)
+        plt.show()
+
+    def plot_isotherm(self, P, V, pressure_range):
+        if self.n is None or self.R is None or self.T is None:
+            raise ValueError("Both n, R, and T must be defined for plotting isotherm")
+        pressures = [(self.n * self.R * self.T) / V for V in self.calculate_volumes(P, V, pressure_range)]
+        plt.plot(self.calculate_volumes(P, V, pressure_range), pressures)
+        plt.xlabel('Volume (L)')
+        plt.ylabel('Pressure (atm)')
+        plt.title(f'Isotherm of Ideal Gas at T = {self.T} K')
+        plt.grid(True)
+        plt.show()
+        
+    def calculate_volumes(self, P, V, pressure_range):
+        # Calcular los volúmenes para la isoterma basado en la gama de presiones proporcionada
+        return [(self.n * self.R * self.T) / P for P in pressure_range]
