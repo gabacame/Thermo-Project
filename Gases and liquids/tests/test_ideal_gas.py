@@ -60,3 +60,7 @@ class TestBoyleLaw(unittest.TestCase):
             passed = False
         self.assertTrue(passed)
 
+# Run the tests
+if __name__ == '__main__':
+    unittest.main()
+
