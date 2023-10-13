@@ -67,17 +67,3 @@ class BoyleLaw:
         plt.title('Isotherm of Boyle with k = {}'.format(k))
         plt.grid(True)
         plt.show()
-
-# Using the BoyleLaw class to generate and plot an isotherm
-P_initial = 1  #Initial pressure (e.g. 1 atm) # Initial pressure (e.g. 1 atm)
-V_initial = 22.4  # Standard molar volume for ideal gases at 0°C and 1 atm
-pressures = np.linspace(0.1, 10, 400)  # 
-
-boyle = BoyleLaw()
-boyle.plot_isotherm(P_initial, V_initial, pressures)
-
-k_value = 22.4  # k = P * V
-pressure_range = np.linspace(0.1, 10, 400)  # A range of pressures from 0.1 to 10 atm
-
-boyle = BoyleLaw(k=k_value)
-boyle.plot_isotherm_from_k(k_value, pressure_range, known='P')
