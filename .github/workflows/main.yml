@@ -20,7 +20,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # Si tienes un archivo requirements.txt, descomenta la siguiente línea:
+<<<<<<< HEAD
         # pip install -r requirements.txt
+=======
+        pip install -r requirements.txt
+>>>>>>> ae79764f16175c0c9c139ed63a7eb9ab64381d42
         # Si no tienes un archivo requirements.txt, deja la siguiente línea:
         pip install pytest
 
