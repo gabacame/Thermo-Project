@@ -79,6 +79,38 @@ class CharlesLaw:
         self.T2 = T2
         self.k = k
 
+    def calculate(self):
+        if self.k:
+            if self.V1:
+                self.T1 = self.k / self.V1
+                return self.T1
+            elif self.T1:
+                self.V1 = self.k / self.T1
+                return self.V1
+        else:
+            # If V1, T1 and V2 are known -> calculate T2
+            if self.V1 is not None and self.T1 is not None and self.V2 is not None and self.T2 is None:
+                self.T2 = (self.V2 * self.T1) / self.V1
+                return self.T2
+            
+            # If V1, T1 and T2 are known -> calculate V2
+            elif self.V1 is not None and self.T1 is not None and self.V2 is None and self.T2 is not None:
+                self.V2 = (self.V1 * self.T2) / self.T1
+                return self.V2
+            
+            # If V2, T1 and T2 are known -> calculate V1
+            elif self.V1 is None and self.T1 is not None and self.V2 is not None and self.T2 is not None:
+                self.V1 = (self.V2 * self.T1) / self.T2
+                return self.V1
+            
+            # If V1, V2 and T2 are known -> calculate T1
+            elif self.V1 is not None and self.V2 is not None and self.T1 is None and self.T2 is not None:
+                self.T1 = (self.V1 * self.T2) / self.V2
+                return self.T1
+            
+            else:
+                raise ValueError("Exactly three values must be provided to calculate the fourth.")
+    
     def plot_isobar(self, V1, T1, temperature_range):
         volumes = [(V1 * (T + 273.15)) / T1 for T in temperature_range]
         plt.plot([T + 273.15 for T in temperature_range], volumes)  # Convertimos la temperatura a Kelvin también en el eje x

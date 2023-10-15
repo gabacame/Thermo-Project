@@ -3,7 +3,7 @@ from ideal_gas import BoyleLaw
 from ideal_gas import CharlesLaw
 from ideal_gas import IdealGasLaw
 from ideal_gas import DaltonsLaw
-'''
+
 class TestBoyleLaw(unittest.TestCase):
 
     def setUp(self):
@@ -126,25 +126,25 @@ class TestIdealGasLaw(unittest.TestCase):
 
     def setUp(self):
         self.ideal_gas = IdealGasLaw()
-        self.ideal_gas.R_unit = "J/(mol*K)"
+        self.ideal_gas.R_unit = "L*atm/(mol*K)"
         self.ideal_gas.R = self.ideal_gas.get_R(self.ideal_gas.R_unit)
         self.ideal_gas.n = 1  # Asumiendo 1 mol de gas
 
     def test_get_R(self):
-        self.assertEqual(self.ideal_gas.get_R("J/(mol*K)"), 8.314462618)
+        self.assertEqual(self.ideal_gas.get_R("L*atm/(mol*K)"), 0.08205736608096)
 
     def test_calculate(self):
         self.ideal_gas.P, self.ideal_gas.V, self.ideal_gas.T = 1, 22.4, 273.15  # 1 atm, 22.4 L, 0°C en K
-        self.assertAlmostEqual(self.ideal_gas.calculate('n'), 1)  # Calculando moles de gas
+        self.assertAlmostEqual(self.ideal_gas.calculate('n'), 0.9993767482825312)  # Calculando moles de gas
 
         self.ideal_gas.n, self.ideal_gas.V, self.ideal_gas.T = 1, 22.4, 273.15
-        self.assertAlmostEqual(self.ideal_gas.calculate('P'), 1)  # Calculando presión en atm
+        self.assertAlmostEqual(self.ideal_gas.calculate('P'), 1.0006236404024207)  # Calculando presión en atm
 
         self.ideal_gas.P, self.ideal_gas.n, self.ideal_gas.T = 1, 1, 273.15
-        self.assertAlmostEqual(self.ideal_gas.calculate('V'), 22.4)  # Calculando volumen en L
+        self.assertAlmostEqual(self.ideal_gas.calculate('V'), 22.413969545014222)  # Calculando volumen en L
 
         self.ideal_gas.P, self.ideal_gas.V, self.ideal_gas.n = 1, 22.4, 1
-        self.assertAlmostEqual(self.ideal_gas.calculate('T'), 273.15)  # Calculando temperatura en K
+        self.assertAlmostEqual(self.ideal_gas.calculate('T'), 272.9797587933734)  # Calculando temperatura en K
 
     def test_plot_isobar(self):
         # Esta prueba asegura que la función de trazar isobarra se ejecute sin errores
@@ -164,7 +164,7 @@ class TestIdealGasLaw(unittest.TestCase):
         except Exception as e:
             passed = False
         self.assertTrue(passed)
-'''
+
 class TestDaltonsLaw(unittest.TestCase):
 
     def setUp(self):
