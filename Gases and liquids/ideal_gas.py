@@ -228,7 +228,7 @@ class DaltonsLaw(IdealGasLaw):
             return self.partial_pressures
         else:
             raise ValueError("All necessary variables must be defined.")
-            
+
     def calculate_total_pressure(self):
         if self.partial_pressures is not None:
             self.P = sum(self.partial_pressures)
@@ -239,4 +239,3 @@ class DaltonsLaw(IdealGasLaw):
             return self.P
         else:
             raise ValueError("Insufficient data to perform calculation.")
-
