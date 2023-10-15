@@ -163,7 +163,11 @@ class IdealGasLaw(BoyleLaw, CharlesLaw):
         # Asegurarse de que se proporcionen suficientes datos
         if None in [self.P, self.V, self.T, self.n, self.R] and param_to_find not in ['P', 'V', 'T', 'n']:
             raise ValueError("Insufficient data to perform calculation")
-        
+
+        # Asegurarse de que self.R no es None
+        if self.R is None:
+            raise ValueError("The gas constant R is not defined")
+
         if param_to_find == 'P':
             self.P = (self.n * self.R * self.T) / self.V
             return self.P
@@ -206,26 +210,33 @@ class IdealGasLaw(BoyleLaw, CharlesLaw):
         # Calcular los volúmenes para la isoterma basado en la gama de presiones proporcionada
         return [(self.n * self.R * self.T) / P for P in pressure_range]
 
-class DaltonsLaw:
+class DaltonsLaw(IdealGasLaw):
     
-    def __init__(self, P_total=None, partial_pressures=None, masses=None, molar_masses=None, V=None, T=None, R=0.0821):
-        self.P_total = P_total
-        self.partial_pressures = partial_pressures  # Lista de presiones parciales
-        self.masses = masses  # Lista de masas
-        self.molar_masses = molar_masses  # Lista de masas molares
-        self.V = V  # Volumen
-        self.T = T  # Temperatura en Kelvin
-        self.R = R  # Constante de gas ideal
-    
-    def calculate(self):
-        if self.P_total is None and self.partial_pressures is not None:
-            # Calcular la presión total a partir de las presiones parciales
-            self.P_total = sum(self.partial_pressures)
-            return self.P_total
-        elif self.P_total is None and self.masses is not None and self.molar_masses is not None and self.V is not None and self.T is not None:
-            # Calcular la presión total a partir de las masas, masas molares, volumen y temperatura
-            self.partial_pressures = [(self.masses[i] / self.molar_masses[i]) * self.R * self.T / self.V for i in range(len(self.masses))]
-            self.P_total = sum(self.partial_pressures)
-            return self.P_total
+    def __init__(self, P_total=None, partial_pressures=None, masses=None, molar_masses=None, V=None, T=None, R_unit=None):
+        super().__init__(P=P_total, V=V, T=T, R_unit=R_unit)  # Llamada al constructor de la clase base
+        self.partial_pressures = partial_pressures
+        self.masses = masses
+        self.molar_masses = molar_masses
+        
+    def calculate_partial_pressures(self):
+        if self.masses is not None and self.molar_masses is not None and self.V is not None and self.T is not None:
+            self.partial_pressures = []
+            for i in range(len(self.masses)):
+                self.n = self.masses[i] / self.molar_masses[i]
+                self.P = super().calculate(param_to_find='P')  # Updated argument
+                self.partial_pressures.append(self.P)
+            return self.partial_pressures
+        else:
+            raise ValueError("All necessary variables must be defined.")
+            
+    def calculate_total_pressure(self):
+        if self.partial_pressures is not None:
+            self.P = sum(self.partial_pressures)
+            return self.P
+        elif self.masses is not None and self.molar_masses is not None and self.V is not None and self.T is not None:
+            self.calculate_partial_pressures()
+            self.P = sum(self.partial_pressures)
+            return self.P
         else:
             raise ValueError("Insufficient data to perform calculation.")
+
