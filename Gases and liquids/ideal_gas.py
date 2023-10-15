@@ -78,39 +78,7 @@ class CharlesLaw:
         self.V2 = V2
         self.T2 = T2
         self.k = k
-    
-    def calculate(self):
-        if self.k:
-            if self.V1:
-                self.T1 = self.k / self.V1
-                return self.T1
-            elif self.T1:
-                self.V1 = self.k / self.T1
-                return self.V1
-        else:
-            # If V1, T1 and V2 are known -> calculate T2
-            if self.V1 is not None and self.T1 is not None and self.V2 is not None and self.T2 is None:
-                self.T2 = (self.V2 * self.T1) / self.V1
-                return self.T2
-            
-            # If V1, T1 and T2 are known -> calculate V2
-            elif self.V1 is not None and self.T1 is not None and self.V2 is None and self.T2 is not None:
-                self.V2 = (self.V1 * self.T2) / self.T1
-                return self.V2
-            
-            # If V2, T1 and T2 are known -> calculate V1
-            elif self.V1 is None and self.T1 is not None and self.V2 is not None and self.T2 is not None:
-                self.V1 = (self.V2 * self.T1) / self.T2
-                return self.V1
-            
-            # If V1, V2 and T2 are known -> calculate T1
-            elif self.V1 is not None and self.V2 is not None and self.T1 is None and self.T2 is not None:
-                self.T1 = (self.V1 * self.T2) / self.V2
-                return self.T1
-            
-            else:
-                raise ValueError("Exactly three values must be provided to calculate the fourth.")
-        
+
     def plot_isobar(self, V1, T1, temperature_range):
         volumes = [(V1 * (T + 273.15)) / T1 for T in temperature_range]
         plt.plot([T + 273.15 for T in temperature_range], volumes)  # Convertimos la temperatura a Kelvin también en el eje x
@@ -205,3 +173,27 @@ class IdealGasLaw(BoyleLaw, CharlesLaw):
     def calculate_volumes(self, P, V, pressure_range):
         # Calcular los volúmenes para la isoterma basado en la gama de presiones proporcionada
         return [(self.n * self.R * self.T) / P for P in pressure_range]
+
+class DaltonsLaw:
+    
+    def __init__(self, P_total=None, partial_pressures=None, masses=None, molar_masses=None, V=None, T=None, R=0.0821):
+        self.P_total = P_total
+        self.partial_pressures = partial_pressures  # Lista de presiones parciales
+        self.masses = masses  # Lista de masas
+        self.molar_masses = molar_masses  # Lista de masas molares
+        self.V = V  # Volumen
+        self.T = T  # Temperatura en Kelvin
+        self.R = R  # Constante de gas ideal
+    
+    def calculate(self):
+        if self.P_total is None and self.partial_pressures is not None:
+            # Calcular la presión total a partir de las presiones parciales
+            self.P_total = sum(self.partial_pressures)
+            return self.P_total
+        elif self.P_total is None and self.masses is not None and self.molar_masses is not None and self.V is not None and self.T is not None:
+            # Calcular la presión total a partir de las masas, masas molares, volumen y temperatura
+            self.partial_pressures = [(self.masses[i] / self.molar_masses[i]) * self.R * self.T / self.V for i in range(len(self.masses))]
+            self.P_total = sum(self.partial_pressures)
+            return self.P_total
+        else:
+            raise ValueError("Insufficient data to perform calculation.")

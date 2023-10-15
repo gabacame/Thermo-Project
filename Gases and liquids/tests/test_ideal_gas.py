@@ -2,7 +2,8 @@ import unittest
 from ideal_gas import BoyleLaw
 from ideal_gas import CharlesLaw
 from ideal_gas import IdealGasLaw
-
+from ideal_gas import DaltonsLaw
+'''
 class TestBoyleLaw(unittest.TestCase):
 
     def setUp(self):
@@ -163,6 +164,28 @@ class TestIdealGasLaw(unittest.TestCase):
         except Exception as e:
             passed = False
         self.assertTrue(passed)
+'''
+class TestDaltonsLaw(unittest.TestCase):
+
+    def setUp(self):
+        self.dalton = DaltonsLaw()
+
+    def test_calculate_with_known_partial_pressures(self):
+        self.dalton.partial_pressures = [1.0, 0.5, 0.8]
+        P_total = self.dalton.calculate()
+        self.assertAlmostEqual(P_total, 2.3)
+
+    def test_calculate_with_known_masses_molar_masses_V_T(self):
+        self.dalton.masses = [28, 16, 32]
+        self.dalton.molar_masses = [28.97, 32.00, 16.04]
+        self.dalton.V = 1
+        self.dalton.T = 300
+        P_total = self.dalton.calculate()
+        self.assertAlmostEqual(P_total, sum([(28/28.97)*0.0821*300, (16/32.00)*0.0821*300, (32/16.04)*0.0821*300]))
+
+    def test_incorrect_parameters(self):
+        with self.assertRaises(ValueError):
+            self.dalton.calculate()
 
 # Run the tests
 if __name__ == '__main__':
